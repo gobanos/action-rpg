@@ -31,7 +31,7 @@ impl World {
     // Instead they are "attached" to the parent object, called the "owner".
     // The owner is passed to every single exposed method.
     #[export]
-    unsafe fn _ready(&mut self, _owner: &Node2D) {
+    fn _ready(&mut self, _owner: &Node2D) {
         // The `godot_print!` macro works like `println!` but prints to the Godot-editor
         // output tab as well.
         self.name = "World".to_string();
@@ -40,7 +40,7 @@ impl World {
 
     // This function will be called in every frame
     #[export]
-    unsafe fn _process(&self, _owner: &Node2D, _delta: f64) {
+    fn _process(&self, _owner: &Node2D, _delta: f64) {
         // godot_print!("Inside {} _process(), delta is {}", self.name, delta);
     }
 }
