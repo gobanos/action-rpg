@@ -11,6 +11,7 @@ const MAX_SPEED: f32 = 80.0;
 #[inherit(KinematicBody2D)]
 #[register_with(Self::register_builder)]
 pub struct Player {
+    state: State,
     velocity: Vector2,
     animation_tree: Option<Ref<AnimationTree>>,
     animation_state: Option<Ref<AnimationNodeStateMachinePlayback>>,
@@ -29,6 +30,7 @@ impl Player {
     fn new(_owner: &KinematicBody2D) -> Self {
         godot_print!("Player is created!");
         Player {
+            state: State::Move,
             velocity: Vector2::zero(),
             animation_tree: None,
             animation_state: None,
@@ -55,6 +57,7 @@ impl Player {
                 .expect("AnimationTree node not found")
                 .claim()
         });
+        self.animation_tree().set_active(true);
         self.animation_state = Some(
             self.animation_tree()
                 .get("parameters/playback")
@@ -68,6 +71,14 @@ impl Player {
     // This function will be called in every frame
     #[export]
     fn _physics_process(&mut self, owner: &KinematicBody2D, delta: f32) {
+        match self.state {
+            State::Move => self.process_move(owner, delta),
+            State::Attack => self.process_attack(owner, delta),
+            State::Roll => self.process_roll(owner, delta),
+        }
+    }
+
+    fn process_move(&mut self, owner: &KinematicBody2D, delta: f32) {
         let input = Input::godot_singleton();
         let input_vector = Vector2::new(
             (input.get_action_strength("ui_right") - input.get_action_strength("ui_left")) as f32,
@@ -79,6 +90,8 @@ impl Player {
                 .set("parameters/Idle/blend_position", input_vector);
             self.animation_tree()
                 .set("parameters/Run/blend_position", input_vector);
+            self.animation_tree()
+                .set("parameters/Attack/blend_position", input_vector);
             self.animation_state().travel("Run");
             self.velocity
                 .move_towards(input_vector.normalize() * MAX_SPEED, ACCELERATION * delta)
@@ -96,5 +109,28 @@ impl Player {
             std::f64::consts::FRAC_PI_4,
             true,
         );
+
+        if input.is_action_just_pressed("attack") {
+            self.state = State::Attack;
+        }
     }
+
+    fn process_attack(&mut self, _owner: &KinematicBody2D, _delta: f32) {
+        self.animation_state().travel("Attack");
+    }
+
+    #[export]
+    fn attack_animation_finished(&mut self, _owner: &KinematicBody2D) {
+        self.state = State::Move;
+        self.velocity = Vector2::zero();
+    }
+
+    fn process_roll(&mut self, _owner: &KinematicBody2D, _delta: f32) {}
+}
+
+#[derive(Debug, Copy, Clone)]
+enum State {
+    Move,
+    Roll,
+    Attack,
 }
