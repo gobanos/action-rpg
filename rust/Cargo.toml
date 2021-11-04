@@ -1,0 +1,12 @@
+[package]
+name = "action_rpg"
+version = "0.1.0"
+authors = ["Grégory OBANOS <gregory.obanos@gmail.com>"]
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "staticlib"]
+
+[dependencies]
+gdnative = { version = "=0.9.3", default-features = false, features = [] }
+gdnative-api = { path = "../gdnative-bindings-0.9.3", version = "=0.9.3" }

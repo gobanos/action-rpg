@@ -1,0 +1,3 @@
+[workspace]
+exclude = ["godot"]
+members = ["rust", "gdnative-bindings-0.9.3"]
