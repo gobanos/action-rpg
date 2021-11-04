@@ -70,7 +70,7 @@ impl Player {
 
     // This function will be called in every frame
     #[export]
-    fn _physics_process(&mut self, owner: &KinematicBody2D, delta: f32) {
+    fn _process(&mut self, owner: &KinematicBody2D, delta: f32) {
         match self.state {
             State::Move => self.process_move(owner, delta),
             State::Attack => self.process_attack(owner, delta),
